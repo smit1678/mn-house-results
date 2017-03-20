@@ -21,19 +21,28 @@ precinct2012.data$DISTRICT <- sprintf("%03s",precinct2012.data$DISTRICT)
 # group by mn leg district and sum vote totals
 precinct2012.data.grp <- group_by(precinct2012.data, DISTRICT)
 precinct2012.data.grp <- summarise(precinct2012.data.grp, 
-                                   pres_total = sum(MNLEGTOTAL),
-                                   r_total = sum(MNLEGR),
-                                   dfl_total = sum(MNLEGDFL)
+                                   leg_ttl_12 = sum(MNLEGTOTAL),
+                                   r_ttl_12 = sum(MNLEGR),
+                                   dfl_ttl_12 = sum(MNLEGDFL),
+                                   pres_ttl_12 = sum(USPRSTOTAL),
+                                   pres_r_ttl_12 = sum(USPRSR),
+                                   pres_dfl_ttl_12 = sum(USPRSDFL)
 )
-# get party vote percentage
-precinct2012.data.grp$pct_r <- round(precinct2012.data.grp$r_total / precinct2012.data.grp$pres_total, 3)
-precinct2012.data.grp$pct_dfl <- round(precinct2012.data.grp$dfl_total / precinct2012.data.grp$pres_total, 3)
+                                  
+# get MN house vote percentage
+precinct2012.data.grp$pct_r_12 <- round(precinct2012.data.grp$r_ttl_12 / precinct2012.data.grp$leg_ttl_12, 3)*100
+precinct2012.data.grp$pct_dfl_12 <- round(precinct2012.data.grp$dfl_ttl_12 / precinct2012.data.grp$leg_ttl_12, 3)*100
+
+# get pres vote percentage
+precinct2012.data.grp$pct_pr_12 <- round(precinct2012.data.grp$pres_r_ttl_12 / precinct2012.data.grp$pres_ttl_12, 3)*100
+precinct2012.data.grp$pct_pdfl_12 <- round(precinct2012.data.grp$pres_dfl_ttl_12 / precinct2012.data.grp$pres_ttl_12, 3)*100
 
 # get margin of win
-precinct2012.data.grp$diff <- (precinct2012.data.grp$pct_r - precinct2012.data.grp$pct_dfl)*100
+precinct2012.data.grp$mrg_12 <- round((precinct2012.data.grp$pct_dfl_12 - precinct2012.data.grp$pct_r_12),2)
+precinct2012.data.grp$mrg_p12 <- round((precinct2012.data.grp$pct_pdfl_12 - precinct2012.data.grp$pct_pr_12),2)
 
-mnlegdistricts.data.merge <- merge(x=mnlegdistricts, y=precinct2012.data.grp, by=c("DISTRICT"), all.x = TRUE)
+mnlegdistricts.2012.data.merge <- merge(x=mnlegdistricts, y=precinct2012.data.grp, by=c("DISTRICT"), all.x = TRUE)
 
 # Write out district shapefile
-writeOGR(mnlegdistricts.data.merge, "../results/", "mnlegdistricts-results-2012", driver="ESRI Shapefile")
+writeOGR(mnlegdistricts.2012.data.merge, "../results/", "mnlegdistricts-results-2012", driver="ESRI Shapefile")
 

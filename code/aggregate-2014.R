@@ -21,19 +21,19 @@ precinct2014.data$DISTRICT <- sprintf("%03s",precinct2014.data$DISTRICT)
 # group by mn leg district and sum vote totals
 precinct2014.data.grp <- group_by(precinct2014.data, DISTRICT)
 precinct2014.data.grp <- summarise(precinct2014.data.grp, 
-                                   pres_total = sum(MNLEGTOTAL),
-                                   r_total = sum(MNLEGR),
-                                   dfl_total = sum(MNLEGDFL)
+                                   leg_ttl_14 = sum(MNLEGTOTAL),
+                                   r_ttl_14 = sum(MNLEGR),
+                                   dfl_ttl_14 = sum(MNLEGDFL)
                                    )
 # get party vote percentage
-precinct2014.data.grp$pct_r <- round(precinct2014.data.grp$r_total / precinct2014.data.grp$pres_total, 3)
-precinct2014.data.grp$pct_dfl <- round(precinct2014.data.grp$dfl_total / precinct2014.data.grp$pres_total, 3)
+precinct2014.data.grp$pct_r_14 <- round(precinct2014.data.grp$r_ttl_14 / precinct2014.data.grp$leg_ttl_14, 3)*100
+precinct2014.data.grp$pct_dfl_14 <- round(precinct2014.data.grp$dfl_ttl_14 / precinct2014.data.grp$leg_ttl_14, 3)*100
 
 # get margin of win
-precinct2014.data.grp$diff <- (precinct2014.data.grp$pct_r - precinct2014.data.grp$pct_dfl)*100
+precinct2014.data.grp$mrg_14 <- round((precinct2014.data.grp$pct_dfl_14 - precinct2014.data.grp$pct_r_14),2)
 
-mnlegdistricts.data.merge <- merge(x=mnlegdistricts, y=precinct2014.data.grp, by=c("DISTRICT"), all.x = TRUE)
+mnlegdistricts.2014.data.merge <- merge(x=mnlegdistricts, y=precinct2014.data.grp, by=c("DISTRICT"), all.x = TRUE)
 
 # Write out district shapefile
-writeOGR(mnlegdistricts.data.merge, "../results/", "mnlegdistricts-results-2014", driver="ESRI Shapefile")
+writeOGR(mnlegdistricts.2014.data.merge, "../results/", "mnlegdistricts-results-2014", driver="ESRI Shapefile")
 
